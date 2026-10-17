@@ -7,32 +7,37 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <title>微信面试法 · 朋友圈自动分析</title>
 <style>
-:root{--bg:#0f1419;--panel:#1a222d;--panel2:#232d3b;--border:#2e3a4a;--text:#e8eef6;--muted:#93a4b8;--accent:#3d8bfd;--ok:#20c997;--danger:#ff6b7a}
+:root{--bg:#f4faf5;--panel:#ffffff;--panel2:#eef7f0;--border:#d5e8da;--text:#1f3d2a;--muted:#5f7a68;--accent:#2f9e6a;--accent2:#7bc96f;--ok:#1f9d6a;--danger:#d64550;--shadow:0 8px 24px rgba(47,120,80,.08)}
 *{box-sizing:border-box}
-body{margin:0;font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:radial-gradient(1000px 500px at 0% -10%,#1a2a44,transparent 50%),var(--bg);color:var(--text);min-height:100vh}
-header{padding:18px 22px;border-bottom:1px solid var(--border);background:rgba(15,20,25,.9);position:sticky;top:0;z-index:5}
-header h1{margin:0;font-size:18px}header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+body{margin:0;font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:
+  radial-gradient(900px 420px at 8% -5%,rgba(123,201,111,.28),transparent 55%),
+  radial-gradient(700px 380px at 100% 0%,rgba(168,220,180,.22),transparent 50%),
+  linear-gradient(180deg,#f7fcf8 0%,var(--bg) 40%,#eef8f1 100%);
+  color:var(--text);min-height:100vh}
+header{padding:18px 22px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.86);backdrop-filter:blur(10px);position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:18px;color:#1b4d32}header p{margin:6px 0 0;color:var(--muted);font-size:13px}
 .wrap{max-width:980px;margin:0 auto;padding:16px 22px 48px;display:flex;flex-direction:column;gap:14px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
-h2{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+h2{margin:0 0 10px;font-size:13px;color:var(--muted);letter-spacing:.02em}
 label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
 input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 12px;font-size:14px}
+input:focus,select:focus,textarea:focus{outline:2px solid rgba(47,158,106,.25);border-color:#8ec9a3}
 textarea{min-height:72px;resize:vertical}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:720px){.row{grid-template-columns:1fr}}
-.drop{border:1.5px dashed #3d5168;border-radius:14px;padding:28px 16px;text-align:center;background:#141c26;cursor:pointer;transition:.15s}
-.drop.drag{border-color:var(--accent);background:#172338}
-.drop strong{display:block;font-size:15px;margin-bottom:6px}
+.drop{border:1.5px dashed #9dcca8;border-radius:14px;padding:28px 16px;text-align:center;background:linear-gradient(180deg,#f8fdf9,#eef8f1);cursor:pointer;transition:.15s}
+.drop.drag{border-color:var(--accent);background:#e7f7ec}
+.drop strong{display:block;font-size:15px;margin-bottom:6px;color:#1f4d33}
 .drop span{color:var(--muted);font-size:12px}
 .thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-.thumb{position:relative;width:110px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#111}
+.thumb{position:relative;width:110px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#fff;box-shadow:var(--shadow)}
 .thumb img{width:110px;height:110px;object-fit:cover;display:block}
-.thumb button{position:absolute;top:4px;right:4px;border:0;background:rgba(0,0,0,.65);color:#fff;border-radius:8px;width:24px;height:24px;cursor:pointer}
+.thumb button{position:absolute;top:4px;right:4px;border:0;background:rgba(31,61,42,.7);color:#fff;border-radius:8px;width:24px;height:24px;cursor:pointer}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-button{border:0;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff}
-button:disabled{opacity:.5;cursor:not-allowed}
-button.secondary{background:var(--panel2);border:1px solid var(--border);color:var(--text)}
-.report{white-space:pre-wrap;line-height:1.55;font-size:13px;background:#121820;border:1px solid var(--border);border-radius:10px;padding:12px;min-height:220px}
+button{border:0;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,var(--accent),#3bb87a);color:#fff;box-shadow:0 6px 14px rgba(47,158,106,.25)}
+button:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+button.secondary{background:#fff;border:1px solid var(--border);color:var(--text);box-shadow:none}
+.report{white-space:pre-wrap;line-height:1.55;font-size:13px;background:#f7fcf8;border:1px solid var(--border);border-radius:10px;padding:12px;min-height:220px;color:var(--text)}
 .hint{font-size:12px;color:var(--muted);margin-top:8px}
 .err{color:var(--danger);font-size:13px;margin-top:8px}
 .status{font-size:13px;color:var(--ok);margin-top:8px}
@@ -42,7 +47,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12px}
 </head>
 <body>
 <header>
-  <h1>微信面试法 · 朋友圈自动分析</h1>
+  <h1>🌿 微信面试法 · 朋友圈自动分析</h1>
   <p>上传微信主页/动态截图即可分析。模型按「外在表现 → 内在映射 → 正向/风险」对照规则表，不打分、不自动录用淘汰。</p>
 </header>
 <div class="wrap">
