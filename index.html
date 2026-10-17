@@ -105,7 +105,7 @@ const reportEl = document.getElementById('report');
 
 // Built-in DashScope defaults (UI hidden). Ignore stale localStorage empties.
 const DEFAULT_BASE = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
-const DEFAULT_MODEL = 'qwen-vl-max';
+const DEFAULT_MODEL = 'qwen3-vl-plus';
 const DEFAULT_KEY = 'sk-ws-H.PYHEERH.2rGf.MEYCIQDoPjvOLM0Fh0lECIK6n-whqVMfz7VEV7aVcRAHH9WPgQIhANfn0ubumIPDSRQ1_vbHGvMrIBWwHZUV-IYBN6aw3_Mc';
 
 function getApiConfig(){
@@ -118,6 +118,10 @@ function getApiConfig(){
   document.getElementById('key').value = key;
   return { base: base.replace(/\/$/, ''), model, key };
 }
+try {
+  if (localStorage.getItem('wxiv_model') === 'qwen-vl-max') localStorage.removeItem('wxiv_model');
+  localStorage.setItem('wxiv_model_cleared_v2','1');
+} catch (e) {}
 getApiConfig();
 
 function saveSettings(){
