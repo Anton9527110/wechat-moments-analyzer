@@ -43,6 +43,10 @@ button.secondary{background:#fff;border:1px solid var(--border);color:var(--text
 .status{font-size:13px;color:var(--ok);margin-top:8px}
 details{margin-top:8px}
 details summary{cursor:pointer;color:var(--muted);font-size:12px}
+
+.insight{background:linear-gradient(180deg,#fbfffc,#f0f9f3);border:1px solid #cfe8d6;border-radius:16px;padding:14px 16px;box-shadow:0 8px 24px rgba(47,120,80,.08);white-space:pre-wrap;line-height:1.7;font-size:14px;color:#1f3d2a;min-height:80px}
+.insight-empty{color:var(--muted);font-size:13px}
+
 </style>
 </head>
 <body>
@@ -90,7 +94,12 @@ details summary{cursor:pointer;color:var(--muted);font-size:12px}
     <input id="key" type="hidden" />
   </div>
 
-<section class="card">
+<section class="card" id="insight-card">
+    <h2>深度觉察 · 整体总结</h2>
+    <div class="insight insight-empty" id="insight">上传图片并开始分析后，这里会先给出简版深度觉察（约 500 字内）。</div>
+  </section>
+
+  <section class="card">
     <h2>分析报告</h2>
     <div class="report" id="report">上传图片后点「开始分析」。</div>
   </section>
@@ -168,7 +177,7 @@ function renderThumbs(){
   runBtn.disabled = files.length === 0;
 }
 
-document.getElementById('clear').onclick = () => { files.length = 0; renderThumbs(); };
+document.getElementById('clear').onclick = () => { files.length = 0; renderThumbs(); const ig=document.getElementById('insight'); ig.className='insight insight-empty'; ig.textContent='上传图片并开始分析后，这里会先给出简版深度觉察（约 500 字内）。'; reportEl.textContent='上传图片后点「开始分析」。'; copyBtn.disabled=true; window.__lastFullText=''; };
 
 function systemPrompt(){
   return `你是「微信面试法」朋友圈分析助手。严格依据给定规则表做定性分析。
@@ -176,13 +185,56 @@ function systemPrompt(){
 只根据图片可见证据下结论；看不清的标「待确认」。
 分析模块顺序：1)长期能量状态（头像、背景、微信名+微信号、地区、签名）2)阶段能量状态（最近朋友圈、更新频率、文案）3)关系能量来源。
 匹配时优先使用规则表中的「类型」原名，并写出该条的内在映射、正向可能、风险可能。
-输出中文，结构如下：
+
+必须按下面两个区块输出，且区块标题原样保留：
+
+===深度觉察===
+写一段「简版深度觉察整体总结」，要求：
+1) 总字数 500 字以内；语气像知心姐姐+开悟导师：温暖、克制、有余地，少用绝对化断言（可用“似乎/更可能/有一股”）。
+2) 先写亮点与优点，篇幅超过 60%。
+3) 再做整体画像，并从「感受驱动 / 结果驱动 / 秩序驱动 / 关系驱动」四类中做关联性分析（可主次组合，不必硬凑四类都强），篇幅超过 20%。
+4) 最后给更深的模式觉察与改进建议：点出可能的“过当”，以及可轻轻调整的方向，篇幅不超过 20%。
+5) 不要小标题编号，用 2～4 个自然段；不要列表；不要复述规则表原文。
+口吻示例（仅学语气与留白，勿照抄内容）：
+有股子自信劲儿，分析思考有条理有深度有逻辑性，对事的思考比较多，专业思考能力应该挺强的。
+对人的感知相对弱，做事讲原则讲理性，批判性思维能力强。
+他自己非常喜欢的一些秩序和原则，一些很享受的信念，可能也是限制他自己的源头。不看见，不突破，对他接下来的发展和关系，可能会是关键的障碍。
+
+===分析报告===
 **可见证据**
 **命中规则**（每条：模块 / 一级 / 类型 → 映射 → 正向 → 风险）
 **综合画像**（长期 / 阶段 / 关系各一两句）
 **风险与待确认**
 若用户指定了评估场景，最后加对应倾向建议（仍由人裁定）。
-规则表 JSON（字段 m模块 y一级 t类型 x外在表现 i内在映射 p正向 r风险）：\n` + JSON.stringify(RULES);
+
+规则表 JSON（字段 m模块 y一级 t类型 x外在表现 i内在映射 p正向 r风险）：
+` + JSON.stringify(RULES);
+}
+
+
+
+function splitInsightAndReport(text){
+  const raw = (text || '').trim();
+  const m = raw.match(/===深度觉察===\s*([\s\S]*?)\s*===分析报告===\s*([\s\S]*)/);
+  if (m) return { insight: m[1].trim(), report: m[2].trim() };
+  const parts = raw.split(/\n{2,}/);
+  if (parts.length >= 2 && raw.length > 200) {
+    const insight = parts.slice(0, Math.min(3, parts.length-1)).join('\n\n').slice(0, 500);
+    const report = parts.slice(Math.min(3, parts.length-1)).join('\n\n') || raw;
+    return { insight, report };
+  }
+  return { insight: '', report: raw };
+}
+
+function renderInsight(text){
+  const el = document.getElementById('insight');
+  if (!text) {
+    el.className = 'insight insight-empty';
+    el.textContent = '本次未解析到深度觉察摘要，可查看下方完整报告。';
+    return;
+  }
+  el.className = 'insight';
+  el.textContent = text;
 }
 
 async function analyze(){
@@ -223,7 +275,10 @@ async function analyze(){
     if (!resp.ok) throw new Error((data.error && (data.error.message || JSON.stringify(data.error))) || ('HTTP '+resp.status));
     const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     if (!text) throw new Error('接口未返回内容');
-    reportEl.textContent = text;
+    const parts = splitInsightAndReport(text);
+    renderInsight(parts.insight);
+    reportEl.textContent = parts.report;
+    window.__lastFullText = (parts.insight ? ('【深度觉察】\n' + parts.insight + '\n\n【分析报告】\n') : '') + parts.report;
     copyBtn.disabled = false;
     statusEl.textContent = '完成' + (files.length > 6 ? '（仅送入前 6 张图）' : '');
   } catch (e) {
@@ -236,8 +291,8 @@ async function analyze(){
 
 document.getElementById('run').onclick = analyze;
 copyBtn.onclick = async () => {
-  try { await navigator.clipboard.writeText(reportEl.textContent); statusEl.hidden=false; statusEl.textContent='已复制'; }
-  catch { prompt('复制报告', reportEl.textContent); }
+  try { await navigator.clipboard.writeText(window.__lastFullText || reportEl.textContent); statusEl.hidden=false; statusEl.textContent='已复制'; }
+  catch { prompt('复制报告', window.__lastFullText || reportEl.textContent); }
 };
 </script>
 </body>
