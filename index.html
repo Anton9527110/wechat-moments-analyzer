@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
 <title>微信面试法 · 朋友圈自动分析</title>
 <style>
 :root{--bg:#0f1419;--panel:#1a222d;--panel2:#232d3b;--border:#2e3a4a;--text:#e8eef6;--muted:#93a4b8;--accent:#3d8bfd;--ok:#20c997;--danger:#ff6b7a}
@@ -76,30 +78,16 @@ details summary{cursor:pointer;color:var(--muted);font-size:12px}
     <div class="err" id="err" hidden></div>
   </section>
 
-  <section class="card">
-    <h2>模型接口（已内置默认通义视觉 Key，可改）</h2>
-    <div class="row">
-      <div>
-        <label>API Base URL</label>
-        <input id="base" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" />
-      </div>
-      <div>
-        <label>模型名</label>
-        <input id="model" placeholder="qwen-vl-max" />
-      </div>
-    </div>
-    <label>API Key</label>
-    <input id="key" type="password" placeholder="已内置默认 Key，也可自行更换" autocomplete="off" />
-    <div class="hint">已默认填入通义千问视觉 Key（qwen-vl-max）。可改 Base / 模型 / Key；改后的值保存在本机浏览器。注意：公网页源码可见默认 Key，请勿把链接随意外传。</div>
-    <details>
-      <summary>没有 Key？</summary>
-      <p class="hint">可在和「微信朋友圈分析 Bot」的一对一对话里直接发截图，由助手按同一套规则分析。</p>
-    </details>
-  </section>
+  <!-- 模型接口已内置，对用户隐藏 -->
+  <div id="api-config" hidden>
+    <input id="base" type="hidden" />
+    <input id="model" type="hidden" />
+    <input id="key" type="hidden" />
+  </div>
 
-  <section class="card">
+<section class="card">
     <h2>分析报告</h2>
-    <div class="report" id="report">上传图片并配置接口后，点「开始分析」。</div>
+    <div class="report" id="report">上传图片后点「开始分析」。</div>
   </section>
 </div>
 <script>
@@ -115,19 +103,27 @@ const statusEl = document.getElementById('status');
 const errEl = document.getElementById('err');
 const reportEl = document.getElementById('report');
 
-// restore settings (page ships a default DashScope key; localStorage overrides)
+// Built-in DashScope defaults (UI hidden). Ignore stale localStorage empties.
+const DEFAULT_BASE = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+const DEFAULT_MODEL = 'qwen-vl-max';
 const DEFAULT_KEY = 'sk-ws-H.PYHEERH.2rGf.MEYCIQDoPjvOLM0Fh0lECIK6n-whqVMfz7VEV7aVcRAHH9WPgQIhANfn0ubumIPDSRQ1_vbHGvMrIBWwHZUV-IYBN6aw3_Mc';
-for (const id of ['base','model','key']) {
-  const v = localStorage.getItem('wxiv_'+id);
-  if (v) document.getElementById(id).value = v;
+
+function getApiConfig(){
+  // Prefer built-in defaults; only use localStorage if non-empty override exists
+  const base = (localStorage.getItem('wxiv_base') || '').trim() || DEFAULT_BASE;
+  const model = (localStorage.getItem('wxiv_model') || '').trim() || DEFAULT_MODEL;
+  const key = (localStorage.getItem('wxiv_key') || '').trim() || DEFAULT_KEY;
+  document.getElementById('base').value = base;
+  document.getElementById('model').value = model;
+  document.getElementById('key').value = key;
+  return { base: base.replace(/\/$/, ''), model, key };
 }
-if (!document.getElementById('base').value) document.getElementById('base').value = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
-if (!document.getElementById('model').value) document.getElementById('model').value = 'qwen-vl-max';
-if (!document.getElementById('key').value) document.getElementById('key').value = DEFAULT_KEY;
+getApiConfig();
 
 function saveSettings(){
-  for (const id of ['base','model','key']) localStorage.setItem('wxiv_'+id, document.getElementById(id).value.trim());
+  // no-op: credentials are built-in; do not persist empties that break mobile
 }
+
 
 drop.onclick = () => fileInput.click();
 drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
@@ -182,13 +178,10 @@ function systemPrompt(){
 
 async function analyze(){
   errEl.hidden = true; statusEl.hidden = false; statusEl.textContent = '分析中…';
-  saveSettings();
-  const base = document.getElementById('base').value.trim().replace(/\/$/, '');
-  const model = document.getElementById('model').value.trim();
-  const key = document.getElementById('key').value.trim();
+  const { base, model, key } = getApiConfig();
   if (!base || !model || !key) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '请先填写 API Base、模型名和 API Key。无 Key 时可在一对一对话里直接把图发给微信朋友圈分析 Bot。';
+    errEl.textContent = '内置接口配置异常，请刷新页面后重试，或把截图发给微信朋友圈分析 Bot。';
     return;
   }
   runBtn.disabled = true;
