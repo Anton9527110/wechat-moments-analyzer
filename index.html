@@ -59,7 +59,7 @@ button.primary{background:linear-gradient(135deg,#2f9e6a,#3bb87a);color:#fff;box
 button.primary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 button.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
 .hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
-.err{color:var(--danger);font-size:13px;margin-top:8px}
+.err{color:var(--danger);font-size:13px;margin-top:8px;white-space:pre-wrap;line-height:1.55}
 .status{font-size:13px;color:var(--ok);margin-top:8px}
 .insight{background:linear-gradient(180deg,#fbfffc,#f0f9f3);border:1px solid #cfe8d6;border-radius:16px;padding:16px;white-space:pre-wrap;line-height:1.75;font-size:14.5px;color:#1f3d2a;min-height:96px}
 .insight-empty{color:var(--muted);font-size:13px;line-height:1.6}
@@ -327,20 +327,54 @@ drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add(
 drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
 drop.addEventListener('drop', e => {
   e.preventDefault(); drop.classList.remove('drag');
-  addFiles(e.dataTransfer.files);
+  void addFiles(e.dataTransfer.files);
 });
-fileInput.onchange = () => addFiles(fileInput.files);
+fileInput.onchange = () => { void addFiles(fileInput.files); };
 
-function addFiles(list){
-  [...list].forEach(f => {
-    if (!f.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      files.push({ name: f.name, dataUrl: reader.result });
-      renderThumbs();
-    };
-    reader.readAsDataURL(f);
-  });
+async function compressToDataUrl(file, maxSide = 1280, quality = 0.72){
+  // 手机截图原图 base64 可达数 MB；压缩后再送中转，降低国内网络/微信内核失败率
+  const bitmap = await createImageBitmap(file).catch(() => null);
+  if (!bitmap) {
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  let { width, height } = bitmap;
+  const scale = Math.min(1, maxSide / Math.max(width, height));
+  width = Math.max(1, Math.round(width * scale));
+  height = Math.max(1, Math.round(height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close && bitmap.close();
+  // jpeg 体积更小；透明图转白底
+  try {
+    return canvas.toDataURL('image/jpeg', quality);
+  } catch (_) {
+    return canvas.toDataURL('image/png');
+  }
+}
+
+async function addFiles(list){
+  const arr = [...list].filter(f => f.type && f.type.startsWith('image/'));
+  if (!arr.length) return;
+  statusEl.hidden = false; errEl.hidden = true;
+  statusEl.textContent = '正在压缩截图…';
+  for (const f of arr) {
+    try {
+      const dataUrl = await compressToDataUrl(f);
+      files.push({ name: f.name, dataUrl });
+    } catch (e) {
+      console.warn('compress fail', f.name, e);
+    }
+  }
+  renderThumbs();
+  statusEl.textContent = files.length ? ('已添加 ' + files.length + ' 张（已压缩）') : '';
+  if (!files.length) statusEl.hidden = true;
 }
 
 function renderThumbs(){
@@ -497,7 +531,42 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
   const content = [{ type: 'text', text: userText }];
   const use = files.slice(0, 6);
   for (const f of use) content.push({ type: 'image_url', image_url: { url: f.dataUrl } });
+  function friendlyNetError(err) {
+    const msg = String((err && err.message) || err || '');
+    const low = msg.toLowerCase();
+    if (
+      low.includes('failed to fetch') ||
+      low.includes('load failed') ||
+      low.includes('networkerror') ||
+      low.includes('network request failed') ||
+      low.includes('the internet connection appears to be offline') ||
+      low.includes('aborted')
+    ) {
+      return (
+        '网络连不上中转服务（常见于国内网络 / 微信内置浏览器访问 workers.dev 不稳定）。\n' +
+        '可试：① 用系统浏览器（Safari/Chrome）打开本页，勿嵌在微信里；② 少传几张图、换稳定 Wi‑Fi；③ 稍后再试。\n' +
+        '若仍失败，请把地区、是否微信内打开告诉熙雅，我们会换国内中转。'
+      );
+    }
+    return msg;
+  }
+
   try {
+    // 轻量预检：连不上中转就别塞大图
+    if (useProxy) {
+      statusEl.textContent = '正在连接中转…';
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 8000);
+      try {
+        const ping = await fetch(base + '/', { method: 'GET', signal: ctrl.signal, cache: 'no-store' });
+        clearTimeout(t);
+        if (!ping.ok) throw new Error('中转预检失败 HTTP ' + ping.status);
+      } catch (pe) {
+        clearTimeout(t);
+        throw pe;
+      }
+    }
+    statusEl.textContent = '觉察中，稍候…（图多时可能要一两分钟）';
     const resp = await fetch(base + '/chat/completions', {
       method: 'POST',
       headers: (() => {
@@ -516,7 +585,7 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
         temperature: 0.45
       })
     });
-    const data = await resp.json();
+    const data = await resp.json().catch(() => ({}));
     if (!resp.ok) throw new Error((data.error && (data.error.message || JSON.stringify(data.error))) || ('HTTP '+resp.status));
     const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     if (!text) throw new Error('接口未返回内容');
@@ -541,7 +610,8 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
     }
   } catch (e) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '分析失败：' + (e.message || e);
+    errEl.style.whiteSpace = 'pre-wrap';
+    errEl.textContent = '分析失败：' + friendlyNetError(e);
   } finally {
     runBtn.disabled = files.length === 0;
   }
