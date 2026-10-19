@@ -171,7 +171,7 @@ const DEFAULT_MODEL = 'qwen3-vl-flash';
 // 禁止写入真实 Key。推给朋友用时填 Cloudflare Worker 地址（无末尾斜杠），例如：
 // const DEFAULT_PROXY = 'https://wechat-moments-proxy.xxx.workers.dev';
 const DEFAULT_KEY = '';
-const DEFAULT_PROXY = '';
+const DEFAULT_PROXY = 'https://wechat-moments-proxy.wen-mutianxia.workers.dev';
 
 function getApiConfig(){
   const proxy = (localStorage.getItem('wxiv_proxy') || '').trim() || DEFAULT_PROXY.trim();
