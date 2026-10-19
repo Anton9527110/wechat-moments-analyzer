@@ -116,8 +116,13 @@ button.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
         <label class="scene-opt"><input type="radio" name="scene" value="亲密关系" /><span>亲密关系</span></label>
         <label class="scene-opt"><input type="radio" name="scene" value="自定义场景" /><span>自定义场景</span></label>
       </div>
-      <div id="customWrap">
-        <input id="customScene" type="text" placeholder="写下你此刻想照见的主题，例如：与伴侣沟通时的卡住点" maxlength="80" />
+      <div class="hint" style="margin-top:8px">建议先选一个基础场景；下面可再写「具体问题」，两者会一起进提示词。</div>
+      <div id="customWrap" style="display:none;margin-top:8px">
+        <input id="customScene" type="text" placeholder="自定义主题，例如：和她谈恋爱要注意什么、怎么打动、避免什么" maxlength="120" />
+      </div>
+      <div style="margin-top:8px">
+        <label for="focusQ" style="font-size:13px;color:var(--muted)">具体问题（可选；与上方场景组合）</label>
+        <input id="focusQ" type="text" placeholder="例：怎么打动她？需要避免什么？她真正渴望被怎样看见？" maxlength="120" />
       </div>
     </div>
 
@@ -229,11 +234,27 @@ document.querySelectorAll('input[name=scene]').forEach(r => {
   });
 });
 
-function selectedScene(){
+const SCENE_LENSES = {
+  '觉察自己': '聚焦自我模式：她/他如何自我呈现、自我安慰、自我要求；看见优点与过当，轻轻照见可调整处。',
+  '日常生活': '聚焦日常节奏与能量起伏：作息、松弛/紧绷、仪式感、独处与连接如何交替。',
+  '事业工作': '聚焦目标感、结果证明、专业认同与压力结构；区分上进与焦虑身份化。',
+  '朋友社交': '聚焦社交半径、互动密度、边界与归属；谁在场、谁缺席、如何被看见。',
+  '亲子关系': '聚焦养育姿态、陪伴质量、控制与放手、孩子出现时的情绪基调。',
+  '亲密关系': '聚焦情感表达、依附与独立、边界、仪式感与真实渴望；回答「如何相处/打动/避免」须先落到朋友圈证据。',
+  '自定义场景': '以用户写下的主题为唯一主线，全文围绕该主题作答，禁止写成与主题无关的通用画像。'
+};
+
+function selectedSceneBundle(){
   const r = document.querySelector('input[name=scene]:checked');
-  if (!r) return '';
-  if (r.value === '自定义场景') return (customScene.value || '').trim();
-  return r.value;
+  if (!r) return null;
+  const base = r.value;
+  const custom = (customScene.value || '').trim();
+  const focus = (document.getElementById('focusQ').value || '').trim();
+  if (base === '自定义场景') {
+    if (!custom) return null;
+    return { base, label: custom, focus: focus || custom, isCustom: true };
+  }
+  return { base, label: base, focus, isCustom: false };
 }
 
 drop.onclick = () => fileInput.click();
@@ -284,7 +305,24 @@ document.getElementById('clear').onclick = () => {
   errEl.hidden = true; statusEl.hidden = true;
 };
 
-function systemPrompt(){
+function systemPrompt(sceneBundle){
+  const base = (sceneBundle && sceneBundle.base) || '觉察自己';
+  const lens = SCENE_LENSES[base] || SCENE_LENSES['自定义场景'];
+  const focus = (sceneBundle && sceneBundle.focus) || '';
+  const sceneBlock = focus
+    ? `本回合场景主线（必须贯穿「深度觉察」全文，不可只放在文末）：
+- 基础场景：${base === '自定义场景' ? (sceneBundle.label || '自定义') : base}
+- 场景透镜：${lens}
+- 用户具体问题：${focus}
+作答硬性要求：
+1) 「深度觉察」必须以回答该具体问题为脊梁；优点、驱动、模式都要服务这个问题。
+2) 每一关键判断都要回扣至少一处朋友圈可见证据（头像/背景/签名/文案/图片内容/互动），禁止空泛鸡汤。
+3) 若问题含「注意什么 / 怎么打动 / 避免什么」等，须在总结后段用散文自然写清：可共鸣点、打动路径、宜避开的姿态——仍留余地，不替用户下定论。
+4) 禁止先写一篇与问题无关的通用画像，再在末尾敷衍两三句场景提示。`
+    : `本回合基础场景：${base}
+场景透镜：${lens}
+「深度觉察」须按该透镜选材与组织，不要写成与场景无关的万能画像。`;
+
   return `你是「微信朋友圈·深度觉察与照见」助手，不是面试官，也不做招聘筛选。
 目标：帮助用户理解自己 / 觉察自己 / 成长自己；理解他人 / 觉察他人 / 改善关系。
 判断模型：外在表现 → 内在映射（潜意识）→ 正向可能 / 风险可能。无权重分，不下最终定论。
@@ -292,24 +330,26 @@ function systemPrompt(){
 分析模块：1)长期能量状态（头像、背景、微信名+微信号、地区、签名）2)阶段能量状态（最近朋友圈、更新频率、文案）3)关系能量来源。
 命中规则时优先用规则表「类型」原名，并写出内在映射、正向可能、风险可能。
 
-若出现两位（或以上）被观察者，或用户明确提供两个姓名，且截图像来自不同人的朋友圈：请侧重「双人关系相处模式」——互补与摩擦、表达与回避、边界与依赖、驱动差异如何互动；仍可简要点出各自特质，但重点落在关系动力。
+${sceneBlock}
+
+若出现两位（或以上）被观察者，或用户明确提供两个姓名，且截图像来自不同人的朋友圈：请侧重「双人关系相处模式」——互补与摩擦、表达与回避、边界与依赖、驱动差异如何互动；仍可简要点出各自特质，但重点落在关系动力，并回应场景主线。
 
 必须按下面两个区块输出，标题原样保留：
 
 ===深度觉察===
 简版整体总结，要求：
 1) 总字数 500 字以内；知心姐姐+开悟导师口吻：温暖、克制、有余地（似乎/更可能/有一股）。
-2) 先写亮点与优点，篇幅超过 60%。
-3) 再做整体画像，并从「感受驱动 / 结果驱动 / 秩序驱动 / 关系驱动」做关联分析（可主次组合），篇幅超过 20%。若是双人关系，写双方驱动如何咬合与拉扯。
-4) 最后写更深的模式觉察与轻改建议（过当与可调整方向），篇幅不超过 20%。
-5) 2～4 个自然段，不要列表、不要复述规则原文。
+2) 先写与场景主线相关的亮点与优点（仍须超过 60%）；优点要能解释「为何这样相处/打动更可能有效」。
+3) 再从「感受驱动 / 结果驱动 / 秩序驱动 / 关系驱动」做关联画像（可主次组合），篇幅超过 20%，并说明这些驱动如何影响本场景问题。若是双人关系，写双方驱动如何咬合与拉扯。
+4) 最后写更深的模式觉察，并直接回应用户具体问题（注意点、打动路径、宜避免处），篇幅不超过 20%。
+5) 2～4 个自然段，不要列表、不要复述规则原文。全文像在回答一个问题，而不是贴标签。
 
 ===分析报告===
-**可见证据**
-**命中规则**（每条：模块 / 一级 / 类型 → 映射 → 正向 → 风险）
+**可见证据**（按场景主线挑选，优先列与问题相关的图文细节）
+**命中规则**（每条：模块 / 一级 / 类型 → 映射 → 正向 → 风险；只列与场景相关的命中）
 **综合画像**（长期 / 阶段 / 关系；双人时加「相处模式」）
 **风险与待确认**
-最后围绕用户所选场景，给 2～4 句可带走的觉察提示（仍由人自行裁定）。
+**场景回应**（单独一小段，明确回答用户具体问题；仍由人自行裁定）
 
 规则表 JSON（字段 m模块 y一级 t类型 x外在表现 i内在映射 p正向 r风险）：
 ` + JSON.stringify(RULES);
@@ -342,10 +382,10 @@ function renderInsight(text){
 async function analyze(){
   errEl.hidden = true; statusEl.hidden = false; statusEl.textContent = '正在照见中…';
   if (nameInput.value.trim()) addName();
-  const scene = selectedScene();
-  if (!scene) {
+  const sceneBundle = selectedSceneBundle();
+  if (!sceneBundle) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '请先选择觉察场景（自定义时请填写主题）。';
+    errEl.textContent = '请先选择觉察场景；选「自定义场景」时请填写主题。';
     return;
   }
   const { base, model, key, useProxy } = getApiConfig();
@@ -367,11 +407,19 @@ async function analyze(){
   runBtn.disabled = true;
   const people = names.length ? names.join('、') : '未署名';
   const dual = names.length >= 2;
+  const sceneLine = sceneBundle.isCustom
+    ? `基础场景：自定义\n自定义主题：${sceneBundle.label}`
+    : `基础场景：${sceneBundle.base}`;
+  const focusLine = sceneBundle.focus
+    ? `具体问题（必须作为深度觉察的脊梁来回答）：${sceneBundle.focus}`
+    : '具体问题：无（按基础场景透镜组织全文）';
   const userText = `请基于这些微信朋友圈/资料截图做深度觉察与照见。
 姓名：${people}。
-场景：${scene}。
-${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分析；若截图明显属于不同人，请分别对应后再谈互动。' : '若截图明显来自两个人，也可主动做关系相处模式分析。'}
-取向：理解与觉察，不面试、不评判、不替用户下定论。`;
+${sceneLine}
+${focusLine}
+场景透镜：${SCENE_LENSES[sceneBundle.base] || ''}
+${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分析；若截图明显属于不同人，请分别对应后再谈互动，并回应上面的具体问题。' : '若截图明显来自两个人，也可主动做关系相处模式分析。'}
+取向：理解与觉察，不面试、不评判、不替用户下定论。先看见朋友圈证据，再回答场景问题。`;
   const content = [{ type: 'text', text: userText }];
   const use = files.slice(0, 6);
   for (const f of use) content.push({ type: 'image_url', image_url: { url: f.dataUrl } });
@@ -388,7 +436,7 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
       body: JSON.stringify({
         model,
         messages: [
-          { role: 'system', content: systemPrompt() },
+          { role: 'system', content: systemPrompt(sceneBundle) },
           { role: 'user', content }
         ],
         temperature: 0.35
