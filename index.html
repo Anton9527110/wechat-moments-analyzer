@@ -242,6 +242,7 @@ const DEFAULT_MODEL = 'qwen3-vl-plus';
 // const DEFAULT_PROXY = 'https://wechat-moments-proxy.xxx.workers.dev';
 const DEFAULT_KEY = '';
 const DEFAULT_PROXY = 'https://wechat-moments-proxy.wen-mutianxia.workers.dev';
+const SUPPORT_HINT = '可刷新重试，如还是不行，可加腾达微信：469767760，由腾达代为帮你分析。';
 
 function getApiConfig(){
   const proxy = (localStorage.getItem('wxiv_proxy') || '').trim() || DEFAULT_PROXY.trim();
@@ -493,23 +494,23 @@ async function analyze(){
   const sceneBundle = selectedSceneBundle();
   if (!sceneBundle) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '请先选择觉察场景；选「自定义场景」时请填写主题。';
+    errEl.textContent = '请先选择觉察场景；选「自定义场景」时请填写主题。\n\n' + SUPPORT_HINT;
     return;
   }
   const { base, model, key, useProxy } = getApiConfig();
   if (!model) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '模型配置异常，请刷新后重试。';
+    errEl.textContent = '模型配置异常，请刷新后重试。\n\n' + SUPPORT_HINT;
     return;
   }
   if (!useProxy && !key) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '未配置中转地址，请联系熙雅；开发自测可在控制台设置 localStorage.wxiv_key 或 wxiv_proxy。';
+    errEl.textContent = '未配置中转地址，请联系熙雅；开发自测可在控制台设置 localStorage.wxiv_key 或 wxiv_proxy。\n\n' + SUPPORT_HINT;
     return;
   }
   if (!base) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '接口地址未配置，请联系熙雅。';
+    errEl.textContent = '接口地址未配置，请联系熙雅。\n\n' + SUPPORT_HINT;
     return;
   }
   runBtn.disabled = true;
@@ -611,7 +612,7 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
   } catch (e) {
     statusEl.hidden = true; errEl.hidden = false;
     errEl.style.whiteSpace = 'pre-wrap';
-    errEl.textContent = '分析失败：' + friendlyNetError(e);
+    errEl.textContent = '分析失败：' + friendlyNetError(e) + '\n\n' + SUPPORT_HINT;
   } finally {
     runBtn.disabled = files.length === 0;
   }
