@@ -4,7 +4,7 @@ compatibility_date = "2026-10-01"
 
 # 限流与 CORS 等非敏感配置（可按朋友人数调整）
 [vars]
-ALLOWED_MODELS = "qwen3-vl-flash"
+ALLOWED_MODELS = "qwen3-vl-flash-2025-10-15,qwen3-vl-flash"
 MAX_RPM = "3"
 MAX_RPD = "20"
 MAX_GLOBAL_RPD = "200"
