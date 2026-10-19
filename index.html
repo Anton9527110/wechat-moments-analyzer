@@ -167,7 +167,7 @@ const customWrap = document.getElementById('customWrap');
 const customScene = document.getElementById('customScene');
 
 const DEFAULT_BASE = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
-const DEFAULT_MODEL = 'qwen3-vl-flash-2025-10-15';
+const DEFAULT_MODEL = 'qwen3-vl-plus';
 // 禁止写入真实 Key。推给朋友用时填 Cloudflare Worker 地址（无末尾斜杠），例如：
 // const DEFAULT_PROXY = 'https://wechat-moments-proxy.xxx.workers.dev';
 const DEFAULT_KEY = '';
@@ -193,7 +193,7 @@ function getApiConfig(){
 }
 try {
   const _m = localStorage.getItem('wxiv_model');
-  if (_m === 'qwen-vl-max' || _m === 'qwen3-vl-plus' || _m === 'qwen-vl-plus' || _m === 'qwen3-vl-flash') localStorage.removeItem('wxiv_model');
+  if (_m === 'qwen-vl-max' || _m === 'qwen3-vl-flash-2025-10-15' || _m === 'qwen-vl-plus' || _m === 'qwen3-vl-flash') localStorage.removeItem('wxiv_model');
 } catch (e) {}
 getApiConfig();
 
