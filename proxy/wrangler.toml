@@ -4,10 +4,10 @@ compatibility_date = "2026-10-01"
 
 # 限流与 CORS 等非敏感配置（可按朋友人数调整）
 [vars]
-ALLOWED_MODELS = "qwen3-vl-flash-2025-10-15,qwen3-vl-flash"
-MAX_RPM = "3"
-MAX_RPD = "20"
-MAX_GLOBAL_RPD = "200"
+ALLOWED_MODELS = "qwen3-vl-flash-2025-10-15,qwen3-vl-flash,qwen3-vl-plus,qwen-vl-plus,qwen2.5-vl-72b-instruct"
+MAX_RPM = "6"
+MAX_RPD = "30"
+MAX_GLOBAL_RPD = "300"
 CORS_ORIGIN = "https://anton9527110.github.io"
 
 # 敏感：用命令写入，勿写进本文件

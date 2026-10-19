@@ -11,9 +11,9 @@
  *
  * 可选 vars（wrangler.toml [vars] 或控制台）：
  *   ALLOWED_MODELS=qwen3-vl-flash
- *   MAX_RPM=3
- *   MAX_RPD=20
- *   MAX_GLOBAL_RPD=200
+ *   MAX_RPM=6
+ *   MAX_RPD=30
+ *   MAX_GLOBAL_RPD=300
  *   CORS_ORIGIN=https://anton9527110.github.io
  *
  * 注意：下方限流用内存 Map，单 Worker 实例内有效；多实例/冷启动不共享计数。
@@ -110,7 +110,7 @@ function checkLimit(key, limit, windowMs) {
 }
 
 function allowedModels(env) {
-  const raw = (env && env.ALLOWED_MODELS) || 'qwen3-vl-flash';
+  const raw = (env && env.ALLOWED_MODELS) || 'qwen3-vl-flash,qwen3-vl-plus';
   return new Set(raw.split(',').map((s) => s.trim()).filter(Boolean));
 }
 
@@ -151,9 +151,9 @@ export default {
       return jsonError(500, '服务端未配置 DASHSCOPE_API_KEY', origin, env);
     }
 
-    const maxRpm = envNum(env, 'MAX_RPM', 3);
-    const maxRpd = envNum(env, 'MAX_RPD', 20);
-    const maxGlobalRpd = envNum(env, 'MAX_GLOBAL_RPD', 200);
+    const maxRpm = envNum(env, 'MAX_RPM', 6);
+    const maxRpd = envNum(env, 'MAX_RPD', 30);
+    const maxGlobalRpd = envNum(env, 'MAX_GLOBAL_RPD', 300);
     const ip = clientIp(request);
 
     const rpm = checkLimit(`rpm:${ip}`, maxRpm, 60 * 1000);
