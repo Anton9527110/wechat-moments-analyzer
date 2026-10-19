@@ -168,16 +168,28 @@ const customScene = document.getElementById('customScene');
 
 const DEFAULT_BASE = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
 const DEFAULT_MODEL = 'qwen3-vl-flash';
-const DEFAULT_KEY = 'sk-ws-H.PYHEERH.2rGf.MEYCIQDoPjvOLM0Fh0lECIK6n-whqVMfz7VEV7aVcRAHH9WPgQIhANfn0ubumIPDSRQ1_vbHGvMrIBWwHZUV-IYBN6aw3_Mc';
+// 禁止写入真实 Key。推给朋友用时填 Cloudflare Worker 地址（无末尾斜杠），例如：
+// const DEFAULT_PROXY = 'https://wechat-moments-proxy.xxx.workers.dev';
+const DEFAULT_KEY = '';
+const DEFAULT_PROXY = '';
 
 function getApiConfig(){
-  const base = (localStorage.getItem('wxiv_base') || '').trim() || DEFAULT_BASE;
+  const proxy = (localStorage.getItem('wxiv_proxy') || '').trim() || DEFAULT_PROXY.trim();
   const model = (localStorage.getItem('wxiv_model') || '').trim() || DEFAULT_MODEL;
-  const key = (localStorage.getItem('wxiv_key') || '').trim() || DEFAULT_KEY;
+  let base, key, useProxy = false;
+  if (proxy) {
+    useProxy = true;
+    base = proxy.replace(/\/$/, '');
+    // Worker 忽略客户端 Authorization；占位即可
+    key = 'proxy';
+  } else {
+    base = (localStorage.getItem('wxiv_base') || '').trim() || DEFAULT_BASE;
+    key = (localStorage.getItem('wxiv_key') || '').trim() || DEFAULT_KEY;
+  }
   document.getElementById('base').value = base;
   document.getElementById('model').value = model;
-  document.getElementById('key').value = key;
-  return { base: base.replace(/\/$/, ''), model, key };
+  document.getElementById('key').value = useProxy ? '(proxy)' : (key ? '(set)' : '');
+  return { base: base.replace(/\/$/, ''), model, key, useProxy };
 }
 try {
   const _m = localStorage.getItem('wxiv_model');
@@ -336,10 +348,20 @@ async function analyze(){
     errEl.textContent = '请先选择觉察场景（自定义时请填写主题）。';
     return;
   }
-  const { base, model, key } = getApiConfig();
-  if (!base || !model || !key) {
+  const { base, model, key, useProxy } = getApiConfig();
+  if (!model) {
     statusEl.hidden = true; errEl.hidden = false;
-    errEl.textContent = '内置接口配置异常，请刷新后重试。';
+    errEl.textContent = '模型配置异常，请刷新后重试。';
+    return;
+  }
+  if (!useProxy && !key) {
+    statusEl.hidden = true; errEl.hidden = false;
+    errEl.textContent = '未配置中转地址，请联系熙雅；开发自测可在控制台设置 localStorage.wxiv_key 或 wxiv_proxy。';
+    return;
+  }
+  if (!base) {
+    statusEl.hidden = true; errEl.hidden = false;
+    errEl.textContent = '接口地址未配置，请联系熙雅。';
     return;
   }
   runBtn.disabled = true;
@@ -356,7 +378,13 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
   try {
     const resp = await fetch(base + '/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      headers: (() => {
+        const h = { 'Content-Type': 'application/json' };
+        // 走中转时可不带真 Key；Worker 会忽略客户端 Authorization
+        if (!useProxy && key) h['Authorization'] = 'Bearer ' + key;
+        else if (useProxy) h['Authorization'] = 'Bearer proxy';
+        return h;
+      })(),
       body: JSON.stringify({
         model,
         messages: [

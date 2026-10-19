@@ -1,0 +1,14 @@
+name = "wechat-moments-proxy"
+main = "cloudflare-worker.js"
+compatibility_date = "2026-10-01"
+
+# 限流与 CORS 等非敏感配置（可按朋友人数调整）
+[vars]
+ALLOWED_MODELS = "qwen3-vl-flash"
+MAX_RPM = "3"
+MAX_RPD = "20"
+MAX_GLOBAL_RPD = "200"
+CORS_ORIGIN = "https://anton9527110.github.io"
+
+# 敏感：用命令写入，勿写进本文件
+# wrangler secret put DASHSCOPE_API_KEY
