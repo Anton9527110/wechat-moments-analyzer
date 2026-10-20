@@ -1,0 +1,21 @@
+[Unit]
+Description=WeChat Moments awareness API proxy
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/wechat-moments
+EnvironmentFile=-/etc/wechat-moments-proxy.env
+ExecStart=/usr/bin/node /opt/wechat-moments/server.js
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/wechat-moments
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

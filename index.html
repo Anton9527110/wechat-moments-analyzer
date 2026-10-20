@@ -238,14 +238,24 @@ const customScene = document.getElementById('customScene');
 
 const DEFAULT_BASE = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
 const DEFAULT_MODEL = 'qwen3-vl-plus';
-// 禁止写入真实 Key。推给朋友用时填 Cloudflare Worker 地址（无末尾斜杠），例如：
-// const DEFAULT_PROXY = 'https://wechat-moments-proxy.xxx.workers.dev';
+// 禁止写入真实 Key。
+// 国内轻量机（IP/localhost）默认走同源 /api；GitHub Pages 仍走 Cloudflare 备份。
 const DEFAULT_KEY = '';
-const DEFAULT_PROXY = 'https://wechat-moments-proxy.wen-mutianxia.workers.dev';
+const CF_PROXY_BACKUP = 'https://wechat-moments-proxy.wen-mutianxia.workers.dev';
 const SUPPORT_HINT = '可刷新重试，如还是不行，可加腾达微信：469767760，由腾达代为帮你分析。';
 
+function defaultProxy(){
+  try {
+    const host = location.hostname || '';
+    if (host === 'localhost' || host === '127.0.0.1' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+      return location.origin.replace(/\/$/, '') + '/api';
+    }
+  } catch (e) {}
+  return CF_PROXY_BACKUP;
+}
+
 function getApiConfig(){
-  const proxy = (localStorage.getItem('wxiv_proxy') || '').trim() || DEFAULT_PROXY.trim();
+  const proxy = (localStorage.getItem('wxiv_proxy') || '').trim() || defaultProxy();
   const model = (localStorage.getItem('wxiv_model') || '').trim() || DEFAULT_MODEL;
   let base, key, useProxy = false;
   if (proxy) {

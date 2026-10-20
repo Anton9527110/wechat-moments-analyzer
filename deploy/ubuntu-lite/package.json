@@ -1,0 +1,11 @@
+{
+  "name": "wechat-moments-ubuntu-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "国内轻量机中转：藏 Key、按 IP 限流、反代百炼",
+  "main": "server.js",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
