@@ -28,3 +28,5 @@ sudo systemctl restart wechat-moments-proxy
 
 ## 与 Cloudflare 关系
 GitHub Pages 仍指向 Cloudflare Worker，作海外备份；国内主推本轻量机入口。
+
+# 注：本机若已有服务占用 8787（如 ooori-web），中转默认用 8788。
