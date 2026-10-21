@@ -20,14 +20,16 @@ body{margin:0;font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;colo
     radial-gradient(700px 400px at 100% 0%,rgba(180,220,190,.2),transparent 50%),
     linear-gradient(180deg,#f8fcf9,#f3f8f4 45%,#eef6f1);
   min-height:100vh}
-header{padding:22px 22px 18px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.82);backdrop-filter:blur(12px);position:sticky;top:0;z-index:5}
+header{padding:16px 18px 0;background:transparent}
 .brand{display:flex;gap:12px;align-items:flex-start;max-width:880px;margin:0 auto}
-.leaf{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#7bc96f,#2f9e6a);display:grid;place-items:center;color:#fff;font-size:22px;flex:0 0 auto;box-shadow:0 8px 18px rgba(47,158,106,.28)}
-header h1{margin:0;font-size:20px;letter-spacing:.02em;color:#184d32;font-weight:700}
-header p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.55;max-width:640px}
-.wrap{max-width:880px;margin:0 auto;padding:18px 18px 56px;display:flex;flex-direction:column;gap:14px}
+.leaf{width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#7bc96f,#2f9e6a);display:grid;place-items:center;color:#fff;font-size:18px;flex:0 0 auto;box-shadow:0 6px 14px rgba(47,158,106,.24)}
+header h1{margin:0;font-size:18px;letter-spacing:.02em;color:#184d32;font-weight:700;line-height:1.35}
+header p{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.55;max-width:640px}
+.wrap{max-width:880px;margin:0 auto;padding:14px 18px 56px;display:flex;flex-direction:column;gap:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;box-shadow:var(--shadow)}
 .card h2{margin:0 0 12px;font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px 10px;flex-wrap:wrap;margin:0 0 12px}
+.card .card-head h2{margin:0;flex:1 1 8em;min-width:0}
 .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .pill{font-size:12px;color:#2d6b4a;background:var(--accent-soft);border:1px solid #c9e6d3;border-radius:999px;padding:5px 10px}
 .drop{border:1.5px dashed #9dcca8;border-radius:16px;padding:26px 16px;text-align:center;background:linear-gradient(180deg,#f9fdfb,#eef8f1);cursor:pointer;transition:.15s}
@@ -58,16 +60,46 @@ button{border:0;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:
 button.primary{background:linear-gradient(135deg,#2f9e6a,#3bb87a);color:#fff;box-shadow:0 8px 18px rgba(47,158,106,.28)}
 button.primary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 button.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
+button.copy-btn{
+  margin-left:auto;flex:0 0 auto;
+  background:#fff;border:1px solid #c9e6d3;color:#2d6b4a;
+  border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;
+  line-height:1.35;white-space:nowrap;
+}
+button.copy-btn:disabled{opacity:.42;cursor:not-allowed}
+button.copy-btn.copied{background:var(--accent-soft);border-color:#b7e0c6;color:#1b5a38}
+button.copy-btn.copy-fail{background:#fff6f6;border-color:#f0c4c7;color:var(--danger)}
 .hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
 .err{color:var(--danger);font-size:13px;margin-top:8px;white-space:pre-wrap;line-height:1.55}
 .status{font-size:13px;color:var(--ok);margin-top:8px}
-.insight{background:linear-gradient(180deg,#fbfffc,#f0f9f3);border:1px solid #cfe8d6;border-radius:16px;padding:16px;white-space:pre-wrap;line-height:1.75;font-size:14.5px;color:#1f3d2a;min-height:96px}
+.insight{background:linear-gradient(180deg,#fbfffc,#f0f9f3);border:1px solid #cfe8d6;border-radius:16px;padding:16px;line-height:1.75;font-size:14.5px;color:#1f3d2a;min-height:96px}
 .insight-empty{color:var(--muted);font-size:13px;line-height:1.6}
-.report{white-space:pre-wrap;line-height:1.6;font-size:13px;background:#f7fcf8;border:1px solid var(--line);border-radius:14px;padding:14px;min-height:200px;color:var(--text)}
+.report{line-height:1.65;font-size:13.5px;background:#f7fcf8;border:1px solid var(--line);border-radius:14px;padding:14px;min-height:120px;color:var(--text)}
+.report.is-placeholder{color:var(--muted);font-size:13px;line-height:1.6}
+.prose p{margin:0 0 .7em}
+.prose p:last-child{margin-bottom:0}
+.prose h3,.prose h4{margin:.85em 0 .35em;color:#184d32;font-weight:700;line-height:1.45;letter-spacing:.01em}
+.prose h3{font-size:16px}
+.prose h4{font-size:14.5px}
+.prose ul,.prose ol{margin:.2em 0 .75em;padding-left:1.25em}
+.prose li{margin:.22em 0}
+.prose strong{font-weight:700;color:#143d28}
+.prose em{font-style:italic}
+.prose del{text-decoration:line-through;color:#6a8473}
+.prose code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;background:rgba(47,158,106,.1);padding:.05em .35em;border-radius:4px}
+.prose pre{margin:.35em 0 .75em;padding:10px 12px;background:#f3faf5;border:1px solid var(--line);border-radius:10px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.prose pre code{background:transparent;padding:0}
+.prose blockquote{margin:.35em 0 .75em;padding:0 0 0 .75em;border-left:3px solid #c5e4d0;color:#3d5c4a}
+.prose hr{border:0;border-top:1px solid var(--line);margin:.85em 0}
+.prose a{color:#1f8a58}
 .footer-note{text-align:center;color:var(--muted);font-size:12px;padding:8px 12px 0}
 @media(max-width:560px){
-  header h1{font-size:17px}
+  header{padding:14px 14px 0}
+  header h1{font-size:16px}
+  .wrap{padding:12px 14px 48px}
   .scene-grid{grid-template-columns:repeat(2,1fr)}
+  .card-head{align-items:flex-start}
+  button.copy-btn{padding:7px 10px}
 }
 
 .feedback{
@@ -177,7 +209,6 @@ button.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
     <div class="btns">
       <button class="primary" id="run" disabled>开始觉察</button>
       <button class="secondary" id="clear">清空</button>
-      <button class="secondary" id="copy" disabled>复制深度觉察</button>
     </div>
     <div class="status" id="status" hidden></div>
     <div class="err" id="err" hidden></div>
@@ -190,18 +221,27 @@ button.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
   </div>
 
   <section class="card" id="insight-card">
-    <h2>深度觉察 · 整体总结</h2>
-    <div class="insight insight-empty" id="insight">选择场景并上传截图后，这里会先给出简版深度觉察（约 500 字内）。</div>
+    <div class="card-head">
+      <h2>深度觉察 · 整体总结</h2>
+      <button type="button" class="copy-btn" id="copyInsight" data-label="复制深度觉察" disabled>复制深度觉察</button>
+    </div>
+    <div class="insight insight-empty prose" id="insight">选择场景并上传截图后，这里会先给出简版深度觉察（约 500 字内）；若填写具体问题，下方会另有最多约 500 字的场景推演。</div>
   </section>
 
   <section class="card" id="scene-card" hidden>
-    <h2>场景推演 · 推断与建议</h2>
-    <div class="insight" id="sceneEvolve"></div>
+    <div class="card-head">
+      <h2>场景推演 · 推断与建议</h2>
+      <button type="button" class="copy-btn" id="copyScene" data-label="复制场景推演" disabled>复制场景推演</button>
+    </div>
+    <div class="insight prose" id="sceneEvolve"></div>
   </section>
 
   <section class="card">
-    <h2>详细照见</h2>
-    <div class="report" id="report">完整证据、规则对照与待确认项会出现在这里。</div>
+    <div class="card-head">
+      <h2>详细照见</h2>
+      <button type="button" class="copy-btn" id="copyReport" data-label="复制详细照见" disabled>复制详细照见</button>
+    </div>
+    <div class="report prose is-placeholder" id="report">完整证据、规则对照与待确认项会出现在这里。</div>
   </section>
 
   <section class="feedback" id="feedback" aria-label="体验反馈">
@@ -227,10 +267,15 @@ const drop = document.getElementById('drop');
 const fileInput = document.getElementById('file');
 const thumbs = document.getElementById('thumbs');
 const runBtn = document.getElementById('run');
-const copyBtn = document.getElementById('copy');
+const copyInsightBtn = document.getElementById('copyInsight');
+const copySceneBtn = document.getElementById('copyScene');
+const copyReportBtn = document.getElementById('copyReport');
 const statusEl = document.getElementById('status');
 const errEl = document.getElementById('err');
 const reportEl = document.getElementById('report');
+const insightEl = document.getElementById('insight');
+const sceneCard = document.getElementById('scene-card');
+const sceneEl = document.getElementById('sceneEvolve');
 const nameInput = document.getElementById('nameInput');
 const namesBox = document.getElementById('namesBox');
 const customWrap = document.getElementById('customWrap');
@@ -401,16 +446,201 @@ function renderThumbs(){
   runBtn.disabled = files.length === 0;
 }
 
+const INSIGHT_PLACEHOLDER = '选择场景并上传截图后，这里会先给出简版深度觉察（约 500 字内）；若填写具体问题，下方会另有最多约 500 字的场景推演。';
+const INSIGHT_MISS = '本次未解析到深度觉察摘要，可查看下方详细照见。';
+const REPORT_PLACEHOLDER = '完整证据、规则对照与待确认项会出现在这里。';
+const sectionRaw = { insight: '', scene: '', report: '' };
+
+function escapeHtml(s){
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function normalizeMd(src){
+  return String(src || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\uFF0A/g, '*')
+    .replace(/\u00A0/g, ' ');
+}
+function inlineMd(escaped){
+  const slots = [];
+  const stash = (html) => {
+    slots.push(html);
+    return '\uE000' + (slots.length - 1) + '\uE001';
+  };
+  let t = escaped;
+  t = t.replace(/`([^`\n]+)`/g, (_, c) => stash('<code>' + c + '</code>'));
+  t = t.replace(/!\[([^\]]*)\]\([^)\n]*\)/g, '$1');
+  t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi, (m, label, url) => {
+    const decoded = url
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>');
+    if (!/^https?:\/\//i.test(decoded) || /[\s"'<>]/.test(decoded)) return m;
+    return stash('<a href="' + escapeHtml(decoded) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>');
+  });
+  t = t.replace(/~~([^~\n]+?)~~/g, '<del>$1</del>');
+  t = t.replace(/\*\*\*([^*]+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  t = t.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/__([^_\n]+?)__/g, '<strong>$1</strong>');
+  t = t.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
+  t = t.replace(/\*\*/g, '');
+  t = t.replace(/__/g, '');
+  t = t.replace(/\uE000(\d+)\uE001/g, (_, i) => slots[Number(i)]);
+  return t;
+}
+function renderMarkdown(src){
+  const lines = normalizeMd(src).split('\n');
+  const out = [];
+  let para = [];
+  let list = null;
+  function closeList(){
+    if (!list) return;
+    out.push(list === 'ul' ? '</ul>' : '</ol>');
+    list = null;
+  }
+  function flushPara(){
+    if (!para.length) return;
+    out.push('<p>' + inlineMd(para.join('<br>')) + '</p>');
+    para = [];
+  }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (!trimmed) { flushPara(); closeList(); continue; }
+    if (/^```/.test(trimmed)) {
+      flushPara(); closeList();
+      const buf = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i].trim())) {
+        buf.push(escapeHtml(lines[i]));
+        i++;
+      }
+      out.push('<pre><code>' + buf.join('\n') + '</code></pre>');
+      continue;
+    }
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
+      flushPara(); closeList();
+      out.push('<hr>');
+      continue;
+    }
+    const heading = /^(#{1,6})\s+(.+)$/.exec(trimmed);
+    if (heading) {
+      flushPara(); closeList();
+      const tag = heading[1].length <= 2 ? 'h3' : 'h4';
+      out.push('<' + tag + '>' + inlineMd(escapeHtml(heading[2])) + '</' + tag + '>');
+      continue;
+    }
+    const bq = /^>\s?(.*)$/.exec(trimmed);
+    if (bq) {
+      flushPara(); closeList();
+      const buf = [bq[1]];
+      while (i + 1 < lines.length && /^\s*>\s?/.test(lines[i + 1])) {
+        i++;
+        buf.push(lines[i].replace(/^\s*>\s?/, ''));
+      }
+      out.push('<blockquote><p>' + inlineMd(buf.map(escapeHtml).join('<br>')) + '</p></blockquote>');
+      continue;
+    }
+    const ul = /^[-*+]\s+(.+)$/.exec(trimmed);
+    if (ul) {
+      flushPara();
+      if (list !== 'ul') { closeList(); out.push('<ul>'); list = 'ul'; }
+      out.push('<li>' + inlineMd(escapeHtml(ul[1])) + '</li>');
+      continue;
+    }
+    const ol = /^(\d{1,3})(?:[.．](?!\d)\s*|[、)]\s*)(.+)$/.exec(trimmed);
+    if (ol) {
+      flushPara();
+      if (list !== 'ol') { closeList(); out.push('<ol>'); list = 'ol'; }
+      out.push('<li>' + inlineMd(escapeHtml(ol[2])) + '</li>');
+      continue;
+    }
+    closeList();
+    para.push(escapeHtml(trimmed));
+  }
+  flushPara();
+  closeList();
+  return out.join('');
+}
+function inlinePlain(s){
+  let t = String(s || '');
+  t = t.replace(/`([^`]+)`/g, '$1');
+  t = t.replace(/~~([^~]+?)~~/g, '$1');
+  t = t.replace(/!?\[([^\]]*)\]\((?:[^()\n]|\([^()\n]*\))*\)/g, '$1');
+  t = t.replace(/\*\*\*([^*]+?)\*\*\*/g, '$1');
+  t = t.replace(/\*\*([^*]+?)\*\*/g, '$1');
+  t = t.replace(/__([^_]+?)__/g, '$1');
+  t = t.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1$2');
+  t = t.replace(/\*\*/g, '');
+  t = t.replace(/__/g, '');
+  return t;
+}
+function markdownToPlain(src){
+  const lines = normalizeMd(src).split('\n');
+  const out = [];
+  let inCode = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (/^```/.test(trimmed)) { inCode = !inCode; continue; }
+    if (inCode) { out.push(line); continue; }
+    if (!trimmed) { out.push(''); continue; }
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) { out.push(''); continue; }
+    const heading = /^(#{1,6})\s+(.+)$/.exec(trimmed);
+    if (heading) { out.push(inlinePlain(heading[2])); continue; }
+    const bq = /^>\s?(.*)$/.exec(trimmed);
+    if (bq) { out.push(inlinePlain(bq[1])); continue; }
+    const ul = /^[-*+]\s+(.+)$/.exec(trimmed);
+    if (ul) { out.push('· ' + inlinePlain(ul[1])); continue; }
+    const ol = /^(\d{1,3})(?:[.．](?!\d)\s*|[、)]\s*)(.+)$/.exec(trimmed);
+    if (ol) { out.push(ol[1] + '. ' + inlinePlain(ol[2])); continue; }
+    out.push(inlinePlain(trimmed));
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+function syncCopyButtons(){
+  copyInsightBtn.disabled = !sectionRaw.insight;
+  copySceneBtn.disabled = !sectionRaw.scene;
+  copyReportBtn.disabled = !sectionRaw.report;
+}
+function setPlaceholder(el, text, kind){
+  if (kind === 'insight') {
+    el.className = 'insight insight-empty prose';
+    el.textContent = text;
+  } else if (kind === 'scene') {
+    el.className = 'insight prose';
+    el.textContent = '';
+  } else {
+    el.className = 'report prose is-placeholder';
+    el.textContent = text;
+  }
+}
+function setRich(el, text, kind){
+  const raw = (text || '').trim();
+  if (!raw) {
+    if (kind === 'insight') setPlaceholder(el, INSIGHT_MISS, 'insight');
+    else if (kind === 'report') setPlaceholder(el, REPORT_PLACEHOLDER, 'report');
+    else setPlaceholder(el, '', 'scene');
+    return '';
+  }
+  el.className = kind === 'report' ? 'report prose' : 'insight prose';
+  el.innerHTML = renderMarkdown(raw);
+  return raw;
+}
 function resetInsightUI(){
-  const ig = document.getElementById('insight');
-  ig.className = 'insight insight-empty';
-  ig.textContent = '选择场景并上传截图后，这里会先给出简版深度觉察（约 500 字内）；若填写具体问题，下方会另有最多约 500 字的场景推演。';
-  const sc = document.getElementById('scene-card');
-  const se = document.getElementById('sceneEvolve');
-  if (sc) sc.hidden = true;
-  if (se) se.textContent = '';
-  reportEl.textContent = '完整证据、规则对照与待确认项会出现在这里。';
-  copyBtn.disabled = true;
+  sectionRaw.insight = '';
+  sectionRaw.scene = '';
+  sectionRaw.report = '';
+  setPlaceholder(insightEl, INSIGHT_PLACEHOLDER, 'insight');
+  sceneCard.hidden = true;
+  setPlaceholder(sceneEl, '', 'scene');
+  setPlaceholder(reportEl, REPORT_PLACEHOLDER, 'report');
+  syncCopyButtons();
   window.__lastInsight = '';
   window.__lastSceneEvolve = '';
 }
@@ -429,7 +659,8 @@ function systemPrompt(sceneBundle){
 - 分析时：仔细阅读朋友圈截图与资料，以内在映射为据。
 - 写给用户看的解读：尽量少提朋友圈本身的具体图文细节（少写「从某条说说/某张图可见」），直接说看见的美善初心、驱动模式、相关推论与轻建议。
 - 保持神秘感与灵活性：用似乎/更可能/有一股/或许；不说满、不贴标签清单、不替用户下定论。
-- 知心姐姐+开悟导师口吻：温暖、克制、留白。`;
+- 知心姐姐+开悟导师口吻：温暖、克制、留白。
+- 排版：若强调，使用成对的 **粗体**；若分点，使用「- 」或「1. 」。不要输出未闭合的 **，也不要堆砌符号。`;
   const sceneBlock = hasFocus
     ? `本回合有具体问题，须输出三个区块（标题原样保留）：
 基础场景：${base === '自定义场景' ? (sceneBundle.label || '自定义') : base}
@@ -481,21 +712,17 @@ function splitInsightAndReport(text){
 }
 
 function renderInsight(text, sceneText){
-  const el = document.getElementById('insight');
-  const card = document.getElementById('scene-card');
-  const se = document.getElementById('sceneEvolve');
-  if (!text) {
-    el.className = 'insight insight-empty';
-    el.textContent = '本次未解析到深度觉察摘要，可查看下方详细照见。';
-  } else {
-    el.className = 'insight';
-    el.textContent = text;
-  }
+  sectionRaw.insight = setRich(insightEl, text, 'insight');
   const scene = (sceneText || '').trim();
-  if (card && se) {
-    if (scene) { card.hidden = false; se.textContent = scene; }
-    else { card.hidden = true; se.textContent = ''; }
+  if (scene) {
+    sceneCard.hidden = false;
+    sectionRaw.scene = setRich(sceneEl, scene, 'scene');
+  } else {
+    sceneCard.hidden = true;
+    sectionRaw.scene = '';
+    setPlaceholder(sceneEl, '', 'scene');
   }
+  syncCopyButtons();
 }
 
 async function analyze(){
@@ -602,10 +829,10 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
     if (!text) throw new Error('接口未返回内容');
     const parts = splitInsightAndReport(text);
     renderInsight(parts.insight, parts.scene);
-    reportEl.textContent = parts.report;
+    sectionRaw.report = setRich(reportEl, parts.report, 'report');
     window.__lastInsight = parts.insight || '';
     window.__lastSceneEvolve = parts.scene || '';
-    copyBtn.disabled = !(window.__lastInsight || window.__lastSceneEvolve);
+    syncCopyButtons();
     statusEl.textContent = '完成' + (files.length > 6 ? '（仅送入前 6 张图）' : '');
     const fb = document.getElementById('feedback');
     if (fb) {
@@ -629,14 +856,62 @@ ${dual ? '已提供至少两个姓名，请优先做双人关系相处模式分�
 }
 
 document.getElementById('run').onclick = analyze;
-copyBtn.onclick = async () => {
-  const a = window.__lastInsight || '';
-  const b = window.__lastSceneEvolve || '';
-  const body = b ? (a + '\n\n' + b) : a;
-  if (!body) return;
-  try { await navigator.clipboard.writeText(body); statusEl.hidden=false; statusEl.textContent='已复制深度觉察'; }
-  catch { prompt('复制深度觉察', body); }
-};
+
+function copyTextFallback(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.setAttribute('aria-hidden', 'true');
+  // Off-screen but selectable. opacity:0 and a 0-size box fail in some mobile webviews.
+  ta.style.cssText = 'position:fixed;top:0;left:-9999px;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;font-size:16px';
+  document.body.appendChild(ta);
+  const sel = document.getSelection();
+  const prev = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+  ta.focus();
+  ta.select();
+  try { ta.setSelectionRange(0, ta.value.length); } catch (e) {}
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  if (prev && sel) {
+    try { sel.removeAllRanges(); sel.addRange(prev); } catch (e) {}
+  }
+  return !!ok;
+}
+async function copyPlainText(text){
+  const value = String(text || '');
+  if (!value) return false;
+  // Call clipboard and the synchronous fallback in the same click, before any await,
+  // so http pages and webviews that reject the Clipboard API still copy in one tap.
+  const clipPromise = (navigator.clipboard && typeof navigator.clipboard.writeText === 'function')
+    ? navigator.clipboard.writeText(value).then(() => true).catch(() => false)
+    : Promise.resolve(false);
+  const fallbackOk = copyTextFallback(value);
+  const clipOk = await clipPromise;
+  return !!(clipOk || fallbackOk);
+}
+function flashCopy(btn, ok){
+  const label = btn.getAttribute('data-label') || '复制';
+  btn.textContent = ok ? '已复制' : '复制失败';
+  btn.classList.toggle('copied', !!ok);
+  btn.classList.toggle('copy-fail', !ok);
+  clearTimeout(btn._copyTimer);
+  btn._copyTimer = setTimeout(() => {
+    btn.textContent = label;
+    btn.classList.remove('copied', 'copy-fail');
+  }, 1500);
+}
+function bindCopy(btn, key){
+  btn.addEventListener('click', async () => {
+    const raw = sectionRaw[key];
+    if (!raw || btn.disabled) return;
+    const ok = await copyPlainText(markdownToPlain(raw));
+    flashCopy(btn, ok);
+  });
+}
+bindCopy(copyInsightBtn, 'insight');
+bindCopy(copySceneBtn, 'scene');
+bindCopy(copyReportBtn, 'report');
 </script>
 </body>
 </html>
